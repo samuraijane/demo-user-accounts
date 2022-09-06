@@ -46,13 +46,29 @@ server.post('/users', async (req, res) => {
     email,
     password
   });
-
   res.json({
     id: newUser.id,
     message: 'new user created',
-  })
-
+  });
 });
+
+// 
+server.put('/users/:id', async (req, res) => {
+  const user = await User.update(
+    {
+      // this specifies what you want to update
+      password: req.body.password
+    },
+    {
+      // this matches which record should be updated
+      where: { id: req.params.id }
+    }
+  );
+  res.json({
+    id: user.id,
+    message: 'password for user has been updated',
+  });
+ })
 
 server.listen(8080, () => {
   console.log('The server is listening at PORT 8080');
