@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "db:create": "sequelize-cli db:create",
+    "db:destroy": "sequelize-cli db:drop",
     "dev": "nodemon server.js",
     "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
