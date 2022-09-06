@@ -5,6 +5,18 @@ const server = express();
 
 server.use(express.json());
 
+// we will protect this endpoint later so that only the user can delete his or her own data
+server.delete('/users/:id', async (req, res) => {
+  const { id } = req.params;
+  const user = await User.destroy({
+      where: { id }
+  });
+  res.json({
+    id: user.id,
+    message: 'user deleted',
+  });
+});
+
 server.get('/', (req, res) => {
   res.json({location: '/'})
 });
@@ -34,8 +46,6 @@ server.post('/users', async (req, res) => {
     email,
     password
   });
-
-
 
   res.json({
     id: newUser.id,
