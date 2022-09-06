@@ -15,6 +15,17 @@ server.get('/users', async (req, res) => {
   res.json(users);
 });
 
+// we will protect this endpoint later so that only the user can access his or her own data
+server.get('/users/:id', async (req, res) => {
+  try {
+      const user = await User.findByPk(req.params.id);
+      res.json(user);
+  } catch (e) {
+      console.log(e);
+      res.status(404).json({ message: 'User not found' });
+  }
+});
+
 server.post('/users', async (req, res) => {
   const { firstName, lastName, email, password } = req.body;
   const newUser = await User.create({
@@ -23,6 +34,8 @@ server.post('/users', async (req, res) => {
     email,
     password
   });
+
+
 
   res.json({
     id: newUser.id,
