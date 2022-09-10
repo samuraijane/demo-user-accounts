@@ -1,9 +1,24 @@
+const cookieParser = require('cookie-parser');
 const express = require('express');
+const session = require('express-session');
 const { User } = require('./models');
 
 const server = express();
 
+// third-party middleware
+server.use(cookieParser());
 server.use(express.json());
+server.use(
+  session({
+    cookie: {
+      secure: false,  // allow requests over http; if true, allow only over https
+      maxAge: 86400  // set cookie expiration for 86,400 seconds (i.e. 24 hours)
+    },
+    resave: false,  // update the session even when there are no changes
+    saveUninitialized: true,  // always create a session
+    secret: 'H!4e_#uTr2'  // a unique value that signs the cookie
+  })
+);
 
 // we will protect this endpoint later so that only the user can delete his or her own data
 server.delete('/users/:id', async (req, res) => {
