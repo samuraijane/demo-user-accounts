@@ -1,6 +1,7 @@
 const cookieParser = require('cookie-parser');
 const express = require('express');
 const session = require('express-session');
+const checkAuth = require('./middleware');
 const { User } = require('./models');
 
 const server = express();
@@ -36,17 +37,44 @@ server.get('/', (req, res) => {
   res.json({location: '/'})
 });
 
+server.get('/login', (req, res) => {
+  res.json({
+    message: 'Please login'
+  });
+});
+
+server.post('/login', async (req, res) => {
+  const { username, password } = req.body;
+  const user = await User.findOne({
+    where: {
+      email: username,
+      password
+    }
+  });
+  if (user) {
+    req.session.user = user;
+    res.redirect(`/users/${user.id}`);
+  } else {
+    res.json({
+      message: 'There is a problem with the username or password.'
+    });
+  }
+});
+
 // demo only, do not allow just anyone to access all the users in your database
 server.get('/users', async (req, res) => {
   const users = await User.findAll();
   res.json(users);
 });
 
-// we will protect this endpoint later so that only the user can access his or her own data
-server.get('/users/:id', async (req, res) => {
+// this endpoint is now protected with `checkAuth` middleware
+server.get('/users/:id', checkAuth, async (req, res) => {
+  const { id } = req.params;
   try {
-      const user = await User.findByPk(req.params.id);
-      res.json(user);
+      const user = await User.findByPk(id);
+      res.json({
+        message: `User with id ${id} has been successfully authenticated.`
+      });
   } catch (e) {
       console.log(e);
       res.status(404).json({ message: 'User not found' });
